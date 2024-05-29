@@ -12,7 +12,7 @@
     <general dyntype="muscle" gaintype="muscle" biastype="muscle" dynprm="0.01 0.04" gainprm="0.75 1.05 -1 400 0.5 1.6 1.5 1.3 1.2" biasprm="0.75 1.05 -1 400 0.5 1.6 1.5 1.3 1.2" ctrlrange="0 1" ctrllimited="true"/>
 
   </default>
-  <option timestep="0.002" integrator="Euler">
+  <option timestep="0.002" integrator="Euler" collision="predefined">
     <flag energy="enable"></flag>
   </option>
   <size nconmax="400" nuser_jnt="1" nuserdata="53" nuser_actuator="50"></size>
