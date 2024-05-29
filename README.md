@@ -1,3 +1,29 @@
+My fork of the warmup repo
+
+Intended for porting from gym==0.13 ---> gymnasium==0.29.1
+
+`main.py`
+```py
+import gymnasium as gym
+import warmup
+
+env = gym.make("humanreacher-v0", render_mode="human")
+
+observation, info = env.reset(seed=69)
+for _ in range(1000):
+    action = env.action_space.sample()
+    observation, reward, terminated, truncated, info = env.step(action)
+    env.render()
+    print(info)
+    print(action.shape)
+    print(observation.shape)
+
+    if terminated or truncated:
+        observation, info = env.reset()
+
+env.close()
+```
+
 # warmup
 Gym environments for musculoskeletal reaching tasks.
 More detailed README will follow.

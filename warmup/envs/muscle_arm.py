@@ -4,9 +4,9 @@ from .muscle_env import MuscleEnv
 
 
 class MuscleArm(MuscleEnv):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.tracking_str = "endeffector"
-        super(MuscleArm, self).__init__()
+        super(MuscleArm, self).__init__(*args, **kwargs)
 
     def set_target(self, target):
         """
@@ -24,8 +24,8 @@ class MuscleArm(MuscleEnv):
         if hasattr(self, "action_multiplier") and self.action_multiplier != 1:
             a = self.redistribute_action(a)
         self.do_simulation(a, self.frame_skip)
-        ee_pos = self.sim.data.get_site_xpos(self.tracking_str)
-        act = self.sim.data.act
+        ee_pos = self.ee_pos
+        act = self.data.act
         reward = self._get_reward(ee_pos, a)
         done = self._get_done(ee_pos)
         if done:
@@ -34,6 +34,7 @@ class MuscleArm(MuscleEnv):
             self._get_obs(),
             reward,
             done,
+            False, # TODO: implement truncation
             {"tracking": ee_pos, "activity": act},
         )
 
@@ -78,7 +79,7 @@ class MuscleArm(MuscleEnv):
 
     @property
     def ee_pos(self):
-        return self.sim.data.get_site_xpos(self.tracking_str)
+        return self.data.site_xpos[self.tracking_id]
 
     @property
     def goal(self):
@@ -86,4 +87,4 @@ class MuscleArm(MuscleEnv):
 
     def set_goal_manually(self, target):
         self.target = target
-        self.sim.data.qpos[-2:] = self.target[:2]
+        self.data.qpos[-2:] = self.target[:2]

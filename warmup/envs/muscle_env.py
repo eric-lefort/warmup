@@ -2,8 +2,11 @@ import os
 from abc import ABC, abstractmethod
 
 import numpy as np
-from gym import utils
-from gym.envs.mujoco import mujoco_env
+from math import inf
+from gymnasium import utils
+from gymnasium.envs.mujoco import mujoco_env
+from gymnasium.spaces import Box
+from mujoco import mj_name2id, mjtObj
 
 from ..utils.env_utils import load_default_params
 
@@ -29,9 +32,18 @@ class MuscleEnv(AbstractMuscleEnv):
         self.render_substep_bool = 0
         default_path = self.get_default_params_path()
         _, args = load_default_params(path=default_path)
+        self.observation_space = Box(low = float(args.observation_space["low"]),
+                                     high = float(args.observation_space["high"]),
+                                     shape = args.observation_space["shape"],
+                                     dtype = getattr(np, args.observation_space["dtype"]))
         self.args = args
-        self.frameskip = args.frameskip
+        self.frame_skip = args.frameskip
         self.quick_settings(args)
+        super().__init__(model_path = self.xml_path,
+                         frame_skip = self.frame_skip,
+                         observation_space = self.observation_space,
+                         render_mode = self.render_mode)
+        self.tracking_id = mj_name2id(self.model, mjtObj.mjOBJ_SITE, self.tracking_str)
         self.reset()
 
     def render_substep(self):
@@ -42,12 +54,16 @@ class MuscleEnv(AbstractMuscleEnv):
             if np.array(ctrl).shape != self.action_space.shape:
                 raise ValueError("Action dimension mismatch")
 
-        self.sim.data.ctrl[:] = ctrl
-        for _ in range(n_frames):
-            if self.render_substep_bool:
-                # self.render('rgb_array')
-                self.render("human")
-            self.sim.step()
+        if self.render_substep_bool:
+            raise NotImplementedError("Please implement intermediate rendering")
+        self.data.ctrl[:] = ctrl
+        self._step_mujoco_simulation(ctrl=ctrl, n_frames=n_frames)
+
+        # for _ in range(n_frames):
+        #     if self.render_substep_bool:
+        #         # self.render('rgb_array')
+        #         self.render("human")
+        #     self.sim.step()
 
     def get_default_params_path(self):
         default_path = os.path.dirname(
@@ -119,7 +135,7 @@ class MuscleEnv(AbstractMuscleEnv):
 
     @property
     def dt(self):
-        return self.model.opt.timestep * self.frameskip
+        return self.model.opt.timestep * self.frame_skip
 
     @property
     def process_state(self):
@@ -148,14 +164,14 @@ class MuscleEnv(AbstractMuscleEnv):
             act = np.zeros_like(self.muscle_lengths())
         return np.concatenate(
             [
-                self.sim.data.qpos[: self.nq],
-                self.sim.data.qvel[: self.nq],
+                self.data.qpos[: self.nq],
+                self.data.qvel[: self.nq],
                 self.muscle_lengths(),
                 self.muscle_forces(),
                 self.muscle_velocities(),
                 act,
                 self.target,
-                self.sim.data.get_site_xpos(self.tracking_str),
+                self.data.site_xpos[self.tracking_str],
             ]
         )
 

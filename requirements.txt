@@ -1,6 +1,6 @@
-free-mujoco-py
+mujoco==2.3.0
 matplotlib
 scipy
-gym==0.13
+gymnasium==0.29.1
 torch
 PyYaml

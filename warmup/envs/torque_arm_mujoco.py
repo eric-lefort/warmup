@@ -1,8 +1,8 @@
 import os
 
 import numpy as np
-from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gymnasium import utils
+from gymnasium.envs.mujoco import mujoco_env
 
 from .muscle_arm import MuscleArm
 
@@ -62,8 +62,11 @@ class TorqueArmMuJoCo(MuscleArm):
                 self.xml_path,
             )
             try:
-                # second one is frameskip
-                mujoco_env.MujocoEnv.__init__(self, path, self.frameskip)
+                mujoco_env.MujocoEnv.__init__(self, 
+                                              model_path = path, 
+                                              frame_skip = self.frame_skip, 
+                                              observation_space = self.observation_space,
+                                              render_mode = self.render_mode)
                 break
             except FileNotFoundError:
                 print("xml file not found, reentering loop.")
@@ -86,6 +89,6 @@ class TorqueArmMuJoCo(MuscleArm):
                 self.sim.data.actuator_velocity,
                 self.sim.data.actuator_force,
                 self.target,
-                self.sim.data.get_site_xpos(self.tracking_str),
+                self.data.site_xpos[self.tracking_id],
             ]
         )

@@ -1,26 +1,36 @@
 import os
 
 import numpy as np
-from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gymnasium import utils
+from gymnasium.envs.mujoco import mujoco_env
+from gymnasium.spaces import Box
 
 from .muscle_arm import MuscleArm
 
 
 class HumanReacher(MuscleArm):
-    def __init__(self):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+        ],
+        "render_fps": 100,
+    }
+    def __init__(self, render_mode):
         self.model_type = "humanreacher"
         self.tracking_str = "endeffector"
         self.nq = 24
         super(MuscleArm, self).__init__()
         self.set_gravity([0, 0, -9.81])
+        self.render_mode = render_mode
         self.has_init = True
 
     def reset_model(self):
         self.randomise_init_state(diff=0.03)
         if self.random_goals:
             self.target = self.sample_rectangular_goal()
-        self.sim.data.qpos[-3:] = self.target[:3]
+        self.data.qpos[-3:] = self.target[:3]
         return self._get_obs()
 
     def sample_rectangular_goal(self):
@@ -43,7 +53,11 @@ class HumanReacher(MuscleArm):
 
     @property
     def xml_path(self):
-        return "xml_files/humanreacher.xml"
+        xml_file = "xml_files/humanreacher.xml"
+        return os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            xml_file,
+        )
 
     def reinitialise(self, args):
         """if we want to load from specific xml, not the creator"""
@@ -54,8 +68,11 @@ class HumanReacher(MuscleArm):
                 self.xml_path,
             )
             try:
-                # second one is frameskip
-                mujoco_env.MujocoEnv.__init__(self, path, self.frameskip)
+                mujoco_env.MujocoEnv.__init__(self, 
+                                              model_path = path, 
+                                              frame_skip = self.frame_skip, 
+                                              observation_space = self.observation_space,
+                                              render_mode = self.render_mode)
                 break
             except FileNotFoundError:
                 print("xml file not found, reentering loop.")
@@ -70,13 +87,13 @@ class HumanReacher(MuscleArm):
         Removed adaptive scaling."""
         return np.concatenate(
             [
-                self.sim.data.qpos[: self.nq],
-                self.sim.data.qvel[: self.nq],
+                self.data.qpos[: self.nq],
+                self.data.qvel[: self.nq],
                 self.muscle_length(),
                 self.muscle_velocity(),
                 self.muscle_force(),
                 self.muscle_activity(),
                 self.target,
-                self.sim.data.get_site_xpos(self.tracking_str),
+                self.data.site_xpos[self.tracking_id],
             ]
         )

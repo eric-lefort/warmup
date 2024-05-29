@@ -6,7 +6,17 @@ params_env:
   sparse_reward: 1
   termination: 1
   termination_distance: 0.04
-  render: 0,
+  render: 1
   gravity: [0, 0, -10.0]
   eval_gravity: [0, 0, -10.0]
   force_scale: 0.04
+  observation_space:
+    low: -inf
+    high: inf
+    shape: [248]
+    dtype: float64
+  # TODO: implement camera parametrization from yaml
+  # camera_id: 0
+  # camera_name: "camera_0"
+  # width: 1
+  # height: 1
