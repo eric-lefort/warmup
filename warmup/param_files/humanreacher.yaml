@@ -13,7 +13,7 @@ params_env:
   observation_space:
     low: -inf
     high: inf
-    shape: [248]
+    shape: [254] # TODO: why 254 instead of 248?
     dtype: float64
   # TODO: implement camera parametrization from yaml
   # camera_id: 0
