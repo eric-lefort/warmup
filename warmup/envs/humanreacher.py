@@ -17,10 +17,11 @@ class HumanReacher(MuscleArm):
         ],
         "render_fps": 100,
     }
-    def __init__(self, render_mode):
+    def __init__(self, render_mode="rgb_array", sparse_reward=True):
         self.model_type = "humanreacher"
         self.tracking_str = "endeffector"
         self.nq = 24
+        self.sparse_reward = sparse_reward
         super(MuscleArm, self).__init__()
         self.set_gravity([0, 0, -9.81])
         self.render_mode = render_mode

@@ -89,7 +89,7 @@ class MuscleEnv(AbstractMuscleEnv):
         self.set_random_goals(args.random_goals)
         self.set_termination(args.termination)
         self.set_termination_distance(args.termination_distance)
-        self.set_sparse_reward(args.sparse_reward)
+        self.set_sparse_reward(self.sparse_reward)
         self.reinitialise(args)
         self.set_gravity(args.gravity)
         if hasattr(args, "force_maximum"):
