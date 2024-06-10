@@ -55,13 +55,13 @@ class MuscleArm(MuscleEnv):
         )
 
     def _get_done(self, ee_pos):
-        if not self.termination:
-            return 0.0
-        return [
-            1
-            if np.linalg.norm(self.target - ee_pos) < self.termination_distance
-            else 0
-        ][0]
+        if (
+            (not self.termination) or
+            (np.linalg.norm(self.target - ee_pos) >= self.termination_distance)
+        ):
+            return False
+        else:
+            return True
 
     def _get_extended_done(self, ee_pos):
         """Emit termination if endeffector is stationary at goal for several
