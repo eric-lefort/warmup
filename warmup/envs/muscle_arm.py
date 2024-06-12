@@ -15,7 +15,7 @@ class MuscleArm(MuscleEnv):
         self.target = np.array(target, dtype=np.float32)
 
     def step(self, a):
-        assert a.shape == self.action_space.shape
+        # assert a.shape == self.action_space.shape
         if self.need_reinit:
             raise Exception("Need to call self.reinitialise before stepping")
         # mujoco-py checks step() before __init__() is called

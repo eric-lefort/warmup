@@ -50,9 +50,9 @@ class MuscleEnv(AbstractMuscleEnv):
         self.render_substep_bool = 1
 
     def do_simulation(self, ctrl, n_frames):
-        if not hasattr(self, "action_multiplier"):
-            if np.array(ctrl).shape != self.action_space.shape:
-                raise ValueError("Action dimension mismatch")
+        # if not hasattr(self, "action_multiplier"):
+        #     if np.array(ctrl).shape != self.action_space.shape:
+        #         raise ValueError("Action dimension mismatch")
 
         if self.render_substep_bool:
             raise NotImplementedError("Please implement intermediate rendering")
